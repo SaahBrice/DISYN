@@ -1,0 +1,22 @@
+{% extends 'entities/base.html' %}
+
+{% block title %}Apply to {{ entity.name }} - Disyn{% endblock %}
+
+{% block content %}
+    <h1 class="text-3xl font-bold mb-4">Apply to {{ entity.name }}</h1>
+    <form method="post" enctype="multipart/form-data" class="max-w-lg mx-auto">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="mb-4">
+                <label for="{{ field.id_for_label }}" class="block text-gray-700 font-bold mb-2">
+                    {{ field.label }}
+                </label>
+                {{ field }}
+                {% if field.errors %}
+                    <p class="text-red-500 text-xs italic">{{ field.errors.0 }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Submit Application</button>
+    </form>
+{% endblock %}

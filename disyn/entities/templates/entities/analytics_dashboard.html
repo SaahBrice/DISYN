@@ -1,0 +1,100 @@
+{% extends 'entities/base.html' %}
+{% load static %}
+
+{% block title %}Analytics Dashboard - Disyn{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Analytics Dashboard</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Overview</h2>
+            <p class="mb-2">Total Entities: {{ total_entities }}</p>
+            <p class="mb-2">Total Upvotes: {{ total_upvotes }}</p>
+            <p>Total Applications: {{ total_applications }}</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Most Upvoted Entities</h2>
+            <ul>
+            {% for entity in most_upvoted %}
+                <li class="mb-2">{{ entity.name }} - {{ entity.upvote_count }} upvotes</li>
+            {% endfor %}
+            </ul>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Most Viewed Entities</h2>
+            <ul>
+            {% for entity in most_viewed %}
+                <li class="mb-2">{{ entity.name }} - {{ entity.view_count }} views</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Entity Distribution by Type</h2>
+            <ul>
+                {% for type in entity_types %}
+                    <li class="mb-2">{{ type.name }}: {{ type.count }}</li>
+                {% endfor %}
+                </ul>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Recent Activity</h2>
+            <h3 class="text-lg font-semibold mb-2">New Entities</h3>
+            <ul class="mb-4">
+            {% for entity in recent_entities %}
+                <li class="mb-1">{{ entity.name }} - Created on {{ entity.created_at|date:"M d, Y" }}</li>
+            {% endfor %}
+            </ul>
+            <h3 class="text-lg font-semibold mb-2">Recent Upvotes</h3>
+            <ul class="mb-4">
+            {% for upvote in recent_upvotes %}
+                <li class="mb-1">{{ upvote.entity.name }} - Upvoted on {{ upvote.created_at|date:"M d, Y H:i" }}</li>
+            {% endfor %}
+            </ul>
+            <h3 class="text-lg font-semibold mb-2">Recent Applications</h3>
+            <ul>
+            {% for application in recent_applications %}
+                <li class="mb-1">{{ application.name }} - Applied to {{ application.entity.name }} on {{ application.created_at|date:"M d, Y H:i" }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold mb-4">Upvotes Over Time (Last 30 Days)</h2>
+        <canvas id="upvotesChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var ctx = document.getElementById('upvotesChart').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [{% for item in upvotes_over_time %}'{{ item.date|date:"M d" }}',{% endfor %}],
+            datasets: [{
+                label: 'Upvotes',
+                data: [{% for item in upvotes_over_time %}{{ item.count }},{% endfor %}],
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

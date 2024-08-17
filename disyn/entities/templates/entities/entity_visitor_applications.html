@@ -1,0 +1,39 @@
+{% extends 'entities/base.html' %}
+
+{% block title %}Visitor Applications for {{ entity.name }} - Disyn{% endblock %}
+
+{% block content %}
+    <h1 class="text-3xl font-bold mb-4">Visitor Applications for {{ entity.name }}</h1>
+    <table class="w-full bg-white shadow-md rounded mb-4">
+        <thead>
+            <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                <th class="py-3 px-6 text-left">Name</th>
+                <th class="py-3 px-6 text-left">Type</th>
+                <th class="py-3 px-6 text-left">Status</th>
+                <th class="py-3 px-6 text-left">Submitted</th>
+                <th class="py-3 px-6 text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="text-gray-600 text-sm font-light">
+            {% for application in applications %}
+                <tr class="border-b border-gray-200 hover:bg-gray-100">
+                    <td class="py-3 px-6 text-left whitespace-nowrap">{{ application.name }}</td>
+                    <td class="py-3 px-6 text-left">{{ application.get_application_type_display }}</td>
+                    <td class="py-3 px-6 text-left">{{ application.get_status_display }}</td>
+                    <td class="py-3 px-6 text-left">{{ application.created_at|date:"M d, Y" }}</td>
+                    <td class="py-3 px-6 text-center">
+                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-2">View</a>
+                        {% if application.status == 'pending' %}
+                            <a href="#" class="text-green-600 hover:text-green-900 mr-2">Approve</a>
+                            <a href="#" class="text-red-600 hover:text-red-900">Reject</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="py-3 px-6 text-center">No applications yet.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

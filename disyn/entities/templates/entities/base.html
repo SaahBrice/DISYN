@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Disyn{% endblock %}</title>
+    {% load static %}
+    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+    <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-blue-600 p-4">
+        <div class="container mx-auto">
+            <a href="{% url 'entity_list' %}" class="text-white text-2xl font-bold">Disyn</a>
+            <a href="{% url 'entity_list' %}" class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-100 mr-2">Explore Entities</a>
+            <a href="{% url 'apply' %}" class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-100">Apply for Listing</a>
+            {% if user.is_superuser %}
+            <a href="{% url 'analytics_dashboard' %}" class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-100">Analytics</a>
+            <a href="{% url 'visitor_applications_list' %}" class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-100 mr-2">Visitor Applications</a>
+            <a href="{% url 'application_list' %}" class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-100">Enterprise Applications</a>
+        {% endif %}
+        </div>
+    </nav>
+    <main class="container mx-auto mt-4 p-4">
+        {% block content %}
+        {% endblock %}
+    </main>
+    <footer class="bg-gray-200 p-4 mt-8">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2024 Disyn. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

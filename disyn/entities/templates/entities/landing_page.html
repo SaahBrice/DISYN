@@ -1,0 +1,38 @@
+{% extends 'entities/base.html' %}
+
+{% block title %}Welcome to DISYN{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold mb-4">Welcome to DISYN</h1>
+    
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold mb-2">About DISYN</h2>
+        <p class="mb-4">
+            DISYN is a comprehensive web platform designed to catalog and display various entities within Cameroon,
+            including industries, restaurants, schools, shops, bakeries, hotels, and more.
+        </p>
+        <p class="mb-4">
+            Our platform serves as a central resource for Cameroonians seeking detailed information about these entities,
+            such as location, contact details, and other relevant information.
+        </p>
+    </div>
+
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold mb-2">Key Features</h2>
+        <ul class="list-disc list-inside">
+            <li>Comprehensive directory of Cameroonian entities</li>
+            <li>Detailed information about each entity</li>
+            <li>User-friendly search and filtering options</li>
+            <li>Ability to upvote and provide feedback on entities</li>
+            <li>Application system for new entity listings</li>
+        </ul>
+    </div>
+
+    <div class="text-center">
+        <a href="{% url 'entity_list' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Explore Entities
+        </a>
+    </div>
+</div>
+{% endblock %}

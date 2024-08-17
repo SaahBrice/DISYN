@@ -1,0 +1,40 @@
+{% extends 'entities/base.html' %}
+
+{% block title %}Visitor Applications - DISYN{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-4">Visitor Applications</h1>
+    
+    <table class="w-full bg-white shadow-md rounded mb-4">
+        <thead>
+            <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                <th class="py-3 px-6 text-left">Name</th>
+                <th class="py-3 px-6 text-left">Entity</th>
+                <th class="py-3 px-6 text-left">Type</th>
+                <th class="py-3 px-6 text-left">Status</th>
+                <th class="py-3 px-6 text-left">Submitted</th>
+                <th class="py-3 px-6 text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="text-gray-600 text-sm font-light">
+            {% for application in applications %}
+                <tr class="border-b border-gray-200 hover:bg-gray-100">
+                    <td class="py-3 px-6 text-left whitespace-nowrap">{{ application.name }}</td>
+                    <td class="py-3 px-6 text-left">{{ application.entity.name }}</td>
+                    <td class="py-3 px-6 text-left">{{ application.get_application_type_display }}</td>
+                    <td class="py-3 px-6 text-left">{{ application.get_status_display }}</td>
+                    <td class="py-3 px-6 text-left">{{ application.created_at|date:"M d, Y" }}</td>
+                    <td class="py-3 px-6 text-center">
+                        <a href="{% url 'visitor_application_detail' application.pk %}" class="text-blue-600 hover:text-blue-900">View</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" class="py-3 px-6 text-center">No applications found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

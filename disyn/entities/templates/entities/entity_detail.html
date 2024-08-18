@@ -2,66 +2,106 @@
 
 {% block title %}{{ entity.name }} - Disyn{% endblock %}
 
-{% block content %}
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        {% if entity.image %}
-            <img src="{{ entity.image.url }}" alt="{{ entity.name }}" class="w-full h-64 object-cover">
-        {% endif %}
-        <div class="p-4">
-            <h1 class="text-3xl font-bold mb-2">{{ entity.name }}</h1>
-            <p class="text-gray-600 mb-2">{{ entity.entity_type|title }}</p>
-            <p class="text-gray-600 mb-4">{{ entity.description }}</p>
-            <p class="text-gray-600 mb-2"><strong>Location:</strong> {{ entity.location }}</p>
-            <p class="text-gray-600 mb-2"><strong>Email:</strong> {{ entity.email }}</p>
-            <p class="text-gray-600 mb-2"><strong>Phone:</strong> {{ entity.phone }}</p>
-            {% if entity.director_name %}
-                <p class="text-gray-600 mb-2"><strong>Director:</strong> {{ entity.director_name }}</p>
-            {% endif %}
-            {% if entity.website %}
-                <p class="text-gray-600 mb-4"><strong>Website:</strong> <a href="{{ entity.website }}" class="text-blue-500 hover:underline">{{ entity.website }}</a></p>
-            {% endif %}
-            <p class="text-gray-600 mb-4"><strong>Upvotes:</strong> {{ entity.upvotes }}</p>
-            <div id="upvoteSection" class="mt-8">
-                <h2 class="text-2xl font-bold mb-4">Upvotes</h2>
-                <p class="text-gray-600 mb-4"><strong>Total Upvotes:</strong> <span id="upvoteCount">{{ entity.upvotes }}</span></p>
-                <form id="upvoteForm" class="mb-4">
-                    {% csrf_token %}
-                    <div class="mb-2">
-                        {{ upvote_form.name }}
-                    </div>
-                    <div class="mb-2">
-                        {{ upvote_form.role }}
-                    </div>
-                    <div class="mb-2">
-                        {{ upvote_form.reason }}
-                    </div>
-                    <button type="submit" class="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Upvote</button>
-                </form>
-                <div id="upvoteError" class="text-red-500 mb-4 hidden"></div>
-                
-                <h3 class="text-xl font-semibold mb-2">Recent Upvotes</h3>
-                <div id="upvoteList">
-                    {% for upvote in upvotes|slice:":5" %}
-                        <div class="bg-white shadow-md rounded-lg p-4 mb-4">
-                            {% if upvote.reason %}
-                                <p class="text-gray-700">{{ upvote.reason }}</p>
-                            {% else %}
-                                <p class="text-gray-500 italic">No reason provided</p>
-                            {% endif %}
-                            <p class="text-gray-500 text-sm mt-2">{{ upvote.created_at|date:"F d, Y H:i" }}</p>
-                        </div>
-                    {% empty %}
-                        <p>No upvotes yet.</p>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        <a href="{% url 'submit_visitor_application' entity.pk %}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-            Apply for Visit/Job/Internship
-        </a>
-    </div>
+{% block extra_head %}
 
-    <script>
+<style>
+#upvoteForm input[type="text"],
+#upvoteForm textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+#upvoteForm textarea {
+  resize: vertical;
+}
+</style>
+
+{% endblock extra_head %}
+
+
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-4">{{ entity.name }}</h1>
+    
+    <div class="bg-white shadow-sm rounded-lg overflow-hidden mb-8">
+        {% if entity.image %}
+        <div class="h-64 overflow-hidden">
+          <img src="{{ entity.image.url }}" alt="{{ entity.name }}" class="w-full h-full object-cover">
+        </div>
+      {% endif %}
+      <div class="p-6">
+        <p class="text-gray-600 mb-4">{{ entity.description }}</p>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+          <div>
+            <strong>Email:</strong> {{ entity.email }}
+          </div>
+          <div>
+            <strong>Phone:</strong> {{ entity.phone }}
+          </div>
+          <div>
+            <strong>Location:</strong> {{ entity.location }}
+          </div>
+          {% if entity.director_name %}
+          <div>
+            <strong>Director:</strong> {{ entity.director_name }}
+          </div>
+          {% endif %}
+          {% if entity.website %}
+          <div>
+            <strong>Website:</strong> 
+            <a href="{{ entity.website }}" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">Visit</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  
+    <div class="bg-yellow-100 shadow-sm rounded-lg overflow-hidden mb-8">
+      <div class="p-6">
+        <h2 class="text-xl font-semibold mb-4">Upvotes: <span id="upvoteCount">{{ entity.upvotes }}</span></h2>
+        
+        <form id="upvoteForm" class="space-y-4">
+          {% csrf_token %}
+          {{ upvote_form.name }}
+          {{ upvote_form.role }}
+          {{ upvote_form.reason }}
+          <button type="submit" class="w-full bg-yellow-400 text-white px-4 py-2 rounded-full hover:bg-yellow-500 transition duration-300">
+            Upvote
+          </button>
+        </form>
+  
+        <div id="upvoteError" class="text-red-500 mt-4 hidden"></div>
+      </div>
+    </div>
+  
+    <div class="bg-yellow-50 shadow-sm rounded-lg overflow-hidden mb-8">
+      <div class="p-6">
+        <h2 class="text-xl font-semibold mb-4">Recent Upvotes</h2>
+        <div id="upvoteList" class="space-y-4">
+          {% for upvote in upvotes|slice:":5" %}
+            <div class="border-b border-gray-200 pb-2">
+              <p class="text-gray-600">{{ upvote.name}} (<span>{{upvote.role}}</span>)</p>
+              <p class="text-gray-600">{{ upvote.reason|default:"No reason provided" }}</p>
+              <p class="text-sm text-gray-400">{{ upvote.created_at|date:"F d, Y H:i" }}</p>
+            </div>
+          {% empty %}
+            <p class="text-gray-600">No upvotes yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  
+    <div class="text-center">
+      <a href="{% url 'submit_visitor_application' entity.pk %}" class="inline-block bg-yellow-400 text-white px-6 py-2 rounded-full hover:bg-green-600 transition duration-300 py-5">
+        Apply for Visit/Job/Internship
+      </a>
+    </div>
+  </div>    <script>
         document.getElementById('upvoteForm').addEventListener('submit', function(e) {
             e.preventDefault();
             

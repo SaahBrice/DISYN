@@ -1,38 +1,559 @@
-{% extends 'entities/base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Disyn{% endblock %}</title>
+    <title>DISYN - Cameroon's Connection Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+    <link rel="icon" href="{% static "icon.png" %}" type="image/png">
 
-{% block title %}Welcome to DISYN{% endblock %}
+    {% block extra_head %} {% endblock %}
+    <style>
+        @font-face {
+            font-family: 'CustomFont';
+            src: url('CustomFont.woff2') format('woff2');
+            font-display: swap;
+        }
 
-{% block content %}
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-4xl font-bold mb-4">Welcome to DISYN</h1>
+        body {
+            font-family: 'CustomFont', sans-serif;
+        }
+
+        .parallax {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        .custom-cursor {
+            cursor: none;
+        }
+        #cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #4CAF50;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.2s ease;
+        }
+        .dark-mode {
+            filter: invert(1) hue-rotate(180deg);
+        }
+        .dark-mode img {
+            filter: invert(1) hue-rotate(180deg);
+        }
+        .pattern {
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="%23000000" d="M1 3h1v1H1V3zm2-2h1v1H3V1z"/></svg>');
+            background-repeat: repeat;
+            opacity: 0.1;
+        }
+        .gradient-bg {
+            background: linear-gradient(-45deg, #003cff, #FABE13, #ffffff, #00eeff);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        .text-gradient {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: textGradient 5s ease-in-out infinite alternate;
+        }
+        @keyframes textGradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 100% 50%;
+            }
+        }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translate(0, 0px); }
+            50% { transform: translate(0, 15px); }
+            100% { transform: translate(0, -0px); }
+        }
+        .text-truncate {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        @media (max-width: 640px) {
+            h1 { font-size: 2rem; line-height: 1.2; }
+            h2 { font-size: 1.5rem; }
+            p { font-size: 1rem; }
+            .container { padding: 1rem; }
+            .py-16 { padding-top: 2rem; padding-bottom: 2rem; }
+            input, select, textarea { font-size: 16px; }
+            .btn { min-height: 44px; min-width: 44px; }
+            .modal-content {
+                width: 90%;
+                margin: 10% auto;
+            }
+            .header {
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+            }
+        }
+        .layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .node {
+            transition: all 0.3s ease;
+        }
+        .node:hover {
+            filter: url(#glow) saturate(3);
+            transform: scale(1.2);
+        }
+        .connection {
+            stroke-dasharray: 4;
+            animation: dash 30s linear infinite;
+            opacity: 0.7;
+        }
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 1000;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div id="cursor"></div>
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="{% url 'landing_page' %}" class="text-2xl font-bold text-yellow-600"><img src="{% static 'logoD.png' %}" alt="DISYN" style="height: 40px; "></a>
+            <nav class="hidden md:block">
+                <a href="#features" class="mx-2 text-gray-600 hover:text-yellow-600">Features</a>
+                <a href="#testimonials" class="mx-2 text-gray-600 hover:text-yellow-600">Testimonials</a>
+                <a href="{% url 'entity_list' %}" class="mx-2 text-gray-600 hover:text-yellow-600">Explore</a>
+                <a href="{% url 'apply' %}" class="mx-2 text-gray-600 hover:text-yellow-600">Apply for Listing</a>
+                {% if user.is_superuser %}
+                    <a href="{% url 'analytics_dashboard' %}" class="mx-2 text-gray-600 hover:text-yellow-600">Analytics</a>
+                    <a href="{% url 'visitor_applications_list' %}" class="mx-2 text-gray-600 hover:yellow-green-600">Visitor Applications</a>
+                    <a href="{% url 'application_list' %}" class="mx-2 text-gray-600 hover:text-yellow-600">Enterprise Applications</a>
+                {% endif %}
+            </nav>
+            <button id="mobileMenuToggle" class="md:hidden">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
     
-    <div class="mb-8">
-        <h2 class="text-2xl font-semibold mb-2">About DISYN</h2>
-        <p class="mb-4">
-            DISYN is a comprehensive web platform designed to catalog and display various entities within Cameroon,
-            including industries, restaurants, schools, shops, bakeries, hotels, and more.
-        </p>
-        <p class="mb-4">
-            Our platform serves as a central resource for Cameroonians seeking detailed information about these entities,
-            such as location, contact details, and other relevant information.
-        </p>
+    <div id="mobileMenu" class="hidden md:hidden bg-white shadow-md">
+        <a href="#features" class="block py-2 px-4 text-gray-600 hover:bg-yellow-600 hover:text-white">Features</a>
+        <a href="#testimonials" class="block py-2 px-4 text-gray-600 hover:bg-yellow-600 hover:text-white">Testimonials</a>
+
+        <a href="{% url 'entity_list' %}" class="block py-2 px-4 text-gray-600 hover:bg-yellow-600 hover:text-white">Explore</a>
+        <a href="{% url 'apply' %}" class="block py-2 px-4 text-gray-600 hover:bg-yellow-600 hover:text-white">Apply for Listing</a>
+        {% if user.is_superuser %}
+            <a href="{% url 'analytics_dashboard' %}" class="block py-2 px-4 text-gray-600 hover:bg-yellow-600 hover:text-white">Analytics</a>
+            <a href="{% url 'visitor_applications_list' %}" class="block py-2 px-4 text-gray-600 hover:bg-yellow-600 hover:text-white">Visitor Applications</a>
+            <a href="{% url 'application_list' %}" class="block py-2 px-4 text-gray-600 hover:bg-yellow-600 hover:text-white">Enterprise Applications</a>
+        {% endif %}
     </div>
 
-    <div class="mb-8">
-        <h2 class="text-2xl font-semibold mb-2">Key Features</h2>
-        <ul class="list-disc list-inside">
-            <li>Comprehensive directory of Cameroonian entities</li>
-            <li>Detailed information about each entity</li>
-            <li>User-friendly search and filtering options</li>
-            <li>Ability to upvote and provide feedback on entities</li>
-            <li>Application system for new entity listings</li>
-        </ul>
+    <div class="fixed bottom-4 right-4 z-50">
+        <button id="darkModeToggle" class="bg-gray-800 text-white p-2 rounded-full shadow-lg hover:bg-gray-700 transition duration-300">
+            <i class="fas fa-moon"></i>
+        </button>
     </div>
-
-    <div class="text-center">
-        <a href="{% url 'entity_list' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-            Explore Entities
+    <div class="fixed bottom-4 left-4 z-50">
+        <button id="languageToggle" class="bg-blue-500 text-white p-2 rounded-full shadow-lg hover:bg-blue-600 transition duration-300">
+            EN | FR
+        </button>
+    </div>
+    <div class="fixed bottom-20 right-4 z-50">
+        <a href="#" id="scrollToTop" class="bg-green-500 text-white p-2 rounded-full shadow-lg hover:bg-green-600 transition duration-300 hidden">
+            <i class="fas fa-arrow-up"></i>
         </a>
     </div>
-</div>
-{% endblock %}
+    <div class="fixed bottom-36 right-4 z-50">
+        <a href="#" class="bg-red-500 text-white p-4 rounded-full shadow-lg hover:bg-red-600 transition duration-300 floating">
+            <i class="fas fa-plus"></i>
+        </a>
+    </div>
+
+
+
+
+    <div id="hero" class="parallax gradient-bg text-white relative min-h-screen flex items-center">
+        <div class="absolute inset-0 pattern"></div>
+        <div class="container mx-auto px-4 py-24 md:py-32 relative z-10">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-4 text-black" data-aos="fade-right"> <span class="text-green-600">Connect</span>, <span class="text-red-500">Grow</span>, <span class="text-yellow-300">Thrive</span> <span class="text-white">with US</span></h1>
+                    <p class="text-lg mb-6 text-gray-600" data-aos="fade-right" data-aos-delay="200">Unlock your potential through our comprehensive platform for businesses, opportunities, and connections.</p>
+                    <div class="flex space-x-4" data-aos="fade-up" data-aos-delay="400">
+                        <a href="{% url 'entity_list' %}" class="bg-yellow-400 hover:bg-yellow-500 text-xs sm:text-sm text-white font-bold py-6 px-3 rounded-full transition duration-300 custom-cursor">
+                        Explore Now
+                        </a>
+                        <a href="#features" class="bg-transparent border-2 border-white hover:bg-yellow-400 text-xs sm:text-sm hover:text-black-400 text-white font-bold py-6 px-6 rounded-full transition duration-300 custom-cursor">
+                            Learn More
+                        </a>
+                    </div>
+                </div>
+                <div class="md:w-1/2" data-aos="fade-left" data-aos-delay="300">
+                    <svg viewBox="0 0 500 300" class="w-full h-auto">
+                        <defs>
+                            <filter id="glow">
+                                <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+                        
+                        <!-- Nodes -->
+                        <circle cx="50" cy="50" r="8" fill="#4CAF50" filter="url(#glow)" class="node">
+                            <animate attributeName="cy" values="50;70;50" dur="4s" repeatCount="indefinite" />
+                        </circle>
+                        <rect x="240" y="30" width="20" height="20" fill="#FFC107" filter="url(#glow)" class="node">
+                            <animate attributeName="x" values="240;260;240" dur="3s" repeatCount="indefinite" />
+                        </rect>
+                        <circle cx="450" cy="100" r="10" fill="#2196F3" filter="url(#glow)" class="node">
+                            <animate attributeName="cy" values="100;80;100" dur="5s" repeatCount="indefinite" />
+                        </circle>
+                        <polygon points="150,250 170,230 130,230" fill="#E91E63" filter="url(#glow)" class="node">
+                            <animate attributeName="transform" attributeType="XML" type="rotate" from="0 150 250" to="360 150 250" dur="10s" repeatCount="indefinite"/>
+                        </polygon>
+                        <rect x="340" y="220" width="15" height="15" fill="#9C27B0" filter="url(#glow)" class="node">
+                            <animate attributeName="y" values="220;200;220" dur="3.5s" repeatCount="indefinite" />
+                        </rect>
+                        <circle cx="100" cy="150" r="7" fill="#FF5722" filter="url(#glow)" class="node">
+                            <animate attributeName="cx" values="100;120;100" dur="4.5s" repeatCount="indefinite" />
+                        </circle>
+                        <polygon points="300,150 320,180 280,180" fill="#00BCD4" filter="url(#glow)" class="node">
+                            <animate attributeName="transform" attributeType="XML" type="rotate" from="0 300 150" to="-360 300 150" dur="8s" repeatCount="indefinite"/>
+                        </polygon>
+                        <rect x="400" y="270" width="18" height="18" fill="#FFEB3B" filter="url(#glow)" class="node">
+                            <animate attributeName="transform" attributeType="XML" type="rotate" from="0 409 279" to="360 409 279" dur="6s" repeatCount="indefinite"/>
+                        </rect>
+                
+                        <!-- Connections -->
+                        <line x1="50" y1="50" x2="250" y2="40" stroke="#4CAF50" stroke-width="2" class="connection">
+                            <animate attributeName="x2" values="250;270;250" dur="3s" repeatCount="indefinite" />
+                            <animate attributeName="y1" values="50;70;50" dur="4s" repeatCount="indefinite" />
+                        </line>
+                        <line x1="250" y1="40" x2="450" y2="100" stroke="#FFC107" stroke-width="2" class="connection">
+                            <animate attributeName="x1" values="250;270;250" dur="3s" repeatCount="indefinite" />
+                            <animate attributeName="y2" values="100;80;100" dur="5s" repeatCount="indefinite" />
+                        </line>
+                        <line x1="450" y1="100" x2="347.5" y2="227.5" stroke="#2196F3" stroke-width="2" class="connection">
+                            <animate attributeName="y1" values="100;80;100" dur="5s" repeatCount="indefinite" />
+                            <animate attributeName="y2" values="227.5;207.5;227.5" dur="3.5s" repeatCount="indefinite" />
+                        </line>
+                        <line x1="347.5" y1="227.5" x2="150" y2="250" stroke="#9C27B0" stroke-width="2" class="connection">
+                            <animate attributeName="y1" values="227.5;207.5;227.5" dur="3.5s" repeatCount="indefinite" />
+                        </line>
+                        <line x1="150" y1="250" x2="100" y2="150" stroke="#E91E63" stroke-width="2" class="connection">
+                            <animate attributeName="x2" values="100;120;100" dur="4.5s" repeatCount="indefinite" />
+                        </line>
+                        <line x1="100" y1="150" x2="50" y2="50" stroke="#FF5722" stroke-width="2" class="connection">
+                            <animate attributeName="x1" values="100;120;100" dur="4.5s" repeatCount="indefinite" />
+                            <animate attributeName="y2" values="50;70;50" dur="4s" repeatCount="indefinite" />
+                        </line>
+                        <line x1="300" y1="150" x2="250" y2="40" stroke="#00BCD4" stroke-width="2" class="connection">
+                            <animate attributeName="x2" values="250;270;250" dur="3s" repeatCount="indefinite" />
+                        </line>
+                        <line x1="300" y1="150" x2="409" y2="279" stroke="#00BCD4" stroke-width="2" class="connection" />
+                        <line x1="409" y1="279" x2="450" y2="100" stroke="#FFEB3B" stroke-width="2" class="connection">
+                            <animate attributeName="y2" values="100;80;100" dur="5s" repeatCount="indefinite" />
+                        </line>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="stats" class="bg-white py-16">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="text-center" data-aos="fade-up">
+                    <h3 class="text-4xl font-bold text-yellow-600 mb-2"><span class="statCounter" data-target="1000+">0</span>+</h3>
+                    <p class="text-gray-600">Registered companies</p>
+                </div>
+                <div class="text-center" data-aos="fade-up" data-aos-delay="200">
+                    <h3 class="text-4xl font-bold text-yellow-500 mb-2"><span class="statCounter" data-target="5000">0</span>+</h3>
+                    <p class="text-gray-600">Connections Made</p>
+                </div>
+                <div class="text-center" data-aos="fade-up" data-aos-delay="400">
+                    <h3 class="text-4xl font-bold text-yellow-400 mb-2"><span class="statCounter" data-target="500">0</span>+</h3>
+                    <p class="text-gray-600">Successful Partnerships</p>
+                </div>
+                <div class="text-center" data-aos="fade-up" data-aos-delay="600">
+                    <h3 class="text-4xl font-bold text-yellow-300 mb-2"><span class="statCounter" data-target="5">0</span></h3>
+                    <p class="text-gray-600">Regions Covered</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="search" class="gradient-bg py-16">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 text-white" data-aos="fade-down">Find What You're Looking For</h2>
+        </div>
+    </div>
+
+    <div id="features" class="bg-white py-16">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 text-gradient" data-aos="fade-down">Empowering Features</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300 transform hover:-translate-y-1" data-aos="flip-left">
+                    <i class="fas fa-book-open text-5xl text-green-600 mb-4 flex justify-center"></i>
+                    <h3 class="text-xl font-semibold text-center mb-2">Comprehensive Directory</h3>
+                    <p class="text-gray-600 text-center">Access a vast network of businesses and institutions across Cameroon.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300 transform hover:-translate-y-1" data-aos="flip-left" data-aos-delay="200">
+                    <i class="fas fa-tools text-5xl text-yellow-500 mb-4 flex justify-center"></i>
+                    <h3 class="text-xl font-semibold text-center mb-2">Business Tools</h3>
+                    <p class="text-gray-600 text-center">Streamline your opportunities search with tailored tools and resources.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300 transform hover:-translate-y-1" data-aos="flip-left" data-aos-delay="400">
+                    <i class="fas fa-handshake text-5xl text-red-600 mb-4 flex justify-center"></i>
+                    <h3 class="text-xl font-semibold text-center mb-2">Opportunities</h3>
+                    <p class="text-gray-600 text-center">Find new business opportunities and partnerships with ease.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300 transform hover:-translate-y-1" data-aos="flip-left" data-aos-delay="600">
+                    <i class="fas fa-network-wired text-5xl text-blue-600 mb-4 flex justify-center"></i>
+                    <h3 class="text-xl font-semibold text-center mb-2">Networking</h3>
+                    <p class="text-gray-600 text-center">Connect with industry leaders and grow your professional network.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="testimonials" class="gradient-bg text-white py-16">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12" data-aos="fade-down">What Our Users Say</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white rounded-lg shadow-md p-6 text-gray-800" data-aos="fade-up">
+                    <p class="mb-4"><i class="fas fa-quote-left text-green-600 mr-2"></i>DISYN has transformed how we connect with potential partners. It's an invaluable resource for any business in Cameroon.</p>
+                    <div class="flex items-center">
+                        <img src=" {% static "nm.jpg" %} " alt="Testimonial 1" class="w-12 h-12 rounded-full mr-4">
+                        <div>
+                            <h4 class="font-semibold">Abdel Aziz M</h4>
+                            <p class="text-sm text-gray-500">CEO, NMWORKS, MCRATE-C</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 text-gray-800" data-aos="fade-up">
+                    <p class="mb-4"><i class="fas fa-quote-left text-green-600 mr-2"></i>DISYN brought us just the right employees for a new project we launched. I fully recommend.</p>
+                    <div class="flex items-center">
+                        <img src=" {% static "BRICE.jpg" %}" alt="Testimonial 1" class="w-12 h-12 rounded-full mr-4">
+                        <div>
+                            <h4 class="font-semibold">Saah Rostant B.</h4>
+                            <p class="text-sm text-gray-500">CEO, SAAH</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 text-gray-800" data-aos="fade-up" data-aos-delay="200">
+                    <p class="mb-4"><i class="fas fa-quote-left text-green-600 mr-2"></i>DISYN helped me find the right job opportunity. Today i am happy in my new job. I recommend DISYN to job seekers</p>
+                    <div class="flex items-center">
+                        <img src="{% static "teacher.jpg" %}" alt="Testimonial 2" class="w-12 h-12 rounded-full mr-4">
+                        <div>
+                            <h4 class="font-semibold">Marie Noel</h4>
+                            <p class="text-sm text-gray-500">Teacher, GreenAgri institution</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 text-gray-800" data-aos="fade-up" data-aos-delay="400">
+                    <p class="mb-4"><i class="fas fa-quote-left text-green-600 mr-2"></i>I must admit, i never knew the right employees to have in my restaurant till i partnered with DISYN. Today my business is growing like never before. Thank you DISYN.</p>
+                    <div class="flex items-center">
+                        <img src="{% static "bank.jpg" %}" alt="Testimonial 3" class="w-12 h-12 rounded-full mr-4">
+                        <div>
+                            <h4 class="font-semibold">Ataba Gaella</h4>
+                            <p class="text-sm text-gray-500">Business owner, AfricanDELICE</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="cta" class="ext-gray-900 py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6 text-gradient" data-aos="fade-down">Ready to Grow Your Business?</h2>
+            <p class="text-xl mb-8" data-aos="fade-up" data-aos-delay="200">Join DISYN today and unlock new opportunities in Cameroon's thriving business landscape.</p>
+            <a href="{% url "apply" %}" class="bg-yellow-400 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300" data-aos="zoom-in" data-aos-delay="400">
+                Join Now
+            </a>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-wrap justify-between">
+                <div class="w-full md:w-1/4 mb-6 md:mb-0">
+                    <h3 class="text-2xl font-bold mb-4">DISYN</h3>
+                    <p>Connecting Cameroon's businesses for a brighter future.</p>
+                </div>
+                <div class="w-full md:w-1/4 mb-6 md:mb-0">
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul>
+                        <li><a href="{% url 'landing_page' %}" class="hover:text-green-500">Home</a></li>
+                        <li><a href="#features" class="hover:text-green-500">Features</a></li>
+                        <li><a href="#testimonials" class="hover:text-green-500">Testimonials</a></li>
+                        <li><a href="#" class="hover:text-green-500">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="w-full md:w-1/4 mb-6 md:mb-0">
+                    <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
+                    <p>Email: saahbrice98@gmail.com</p>
+                    <p>Phone: +237 123 456 789</p>
+                    <p>Address: Douala, Cameroon</p>
+                </div>
+                <div class="w-full md:w-1/4">
+                    <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-2xl hover:text-green-500"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-2xl hover:text-green-500"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-2xl hover:text-green-500"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-2xl hover:text-green-500"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 text-center">
+                <p>&copy; 2023 DISYN. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true,
+        });
+
+        // Custom cursor
+        const cursor = document.getElementById('cursor');
+        const links = document.querySelectorAll('a, button');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        links.forEach(link => {
+            link.addEventListener('mouseenter', () => {
+                cursor.style.transform = 'scale(1.5)';
+            });
+            link.addEventListener('mouseleave', () => {
+                cursor.style.transform = 'scale(1)';
+            });
+        });
+
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+        });
+
+        // Language toggle (placeholder functionality)
+        const languageToggle = document.getElementById('languageToggle');
+        languageToggle.addEventListener('click', () => {
+            alert('Language toggle functionality to be implemented');
+        });
+
+        // Scroll to top
+        const scrollToTopButton = document.getElementById('scrollToTop');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollToTopButton.classList.remove('hidden');
+            } else {
+                scrollToTopButton.classList.add('hidden');
+            }
+        });
+        scrollToTopButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Animated statistics counter
+        const counters = document.querySelectorAll('.statCounter');
+        const animateCounters = () => {
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                const count = parseInt(counter.innerText);
+                const increment = target / 200;
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + increment);
+                    setTimeout(animateCounters, 10);
+                } else {
+                    counter.innerText = target;
+                }
+            });
+        };
+
+        // Intersection Observer for statistics section
+        const statsSection = document.getElementById('stats');
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                animateCounters();
+                observer.unobserve(statsSection);
+            }
+        });
+        observer.observe(statsSection);
+
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Parallax effect
+        window.addEventListener('scroll', () => {
+            const parallax = document.querySelector('.parallax');
+            let scrollPosition = window.pageYOffset;
+            parallax.style.backgroundPositionY = scrollPosition * 0.5 + 'px';
+        });
+
+        // Service worker registration for offline functionality
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(registration => {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
+    </script>
+</body>
+</html>

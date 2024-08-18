@@ -1,34 +1,251 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Disyn{% endblock %}</title>
-    {% load static %}
-    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
-    <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet">
+    <title>DISYN - Cameroon's Connection Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+    <link rel="icon" href="{% static "icon.png" %}" type="image/png">
+    {% block extra_head %} {% endblock %}
+    <style>
+        @font-face {
+            font-family: 'CustomFont';
+            src: url('CustomFont.woff2') format('woff2');
+            font-display: swap;
+        }
+
+        body {
+            font-family: 'CustomFont', sans-serif;
+        }
+
+        .parallax {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        .custom-cursor {
+            cursor: none;
+        }
+        #cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #4CAF50;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.2s ease;
+        }
+        .dark-mode {
+            filter: invert(1) hue-rotate(180deg);
+        }
+        .dark-mode img {
+            filter: invert(1) hue-rotate(180deg);
+        }
+        .pattern {
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="%23000000" d="M1 3h1v1H1V3zm2-2h1v1H3V1z"/></svg>');
+            background-repeat: repeat;
+            opacity: 0.1;
+        }
+        .gradient-bg {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        .text-gradient {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: textGradient 5s ease-in-out infinite alternate;
+        }
+        @keyframes textGradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 100% 50%;
+            }
+        }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translate(0, 0px); }
+            50% { transform: translate(0, 15px); }
+            100% { transform: translate(0, -0px); }
+        }
+        .text-truncate {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        @media (max-width: 640px) {
+            h1 { font-size: 2rem; line-height: 1.2; }
+            h2 { font-size: 1.5rem; }
+            p { font-size: 1rem; }
+            .container { padding: 1rem; }
+            .py-16 { padding-top: 2rem; padding-bottom: 2rem; }
+            input, select, textarea { font-size: 16px; }
+            .btn { min-height: 44px; min-width: 44px; }
+            .modal-content {
+                width: 90%;
+                margin: 10% auto;
+            }
+            .header {
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+            }
+        }
+        .layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+    </style>
 </head>
 <body class="bg-gray-100">
-    <nav class="bg-blue-600 p-4">
-        <div class="container mx-auto">
-            <a href="{% url 'entity_list' %}" class="text-white text-2xl font-bold">Disyn</a>
-            <a href="{% url 'entity_list' %}" class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-100 mr-2">Explore Entities</a>
-            <a href="{% url 'apply' %}" class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-100">Apply for Listing</a>
-            {% if user.is_superuser %}
-            <a href="{% url 'analytics_dashboard' %}" class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-100">Analytics</a>
-            <a href="{% url 'visitor_applications_list' %}" class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-100 mr-2">Visitor Applications</a>
-            <a href="{% url 'application_list' %}" class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-100">Enterprise Applications</a>
-        {% endif %}
+    <div id="cursor"></div>
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="{% url 'landing_page' %}" class="text-2xl font-bold text-yellow-600"><img src="{% static 'logoD.png' %}" alt="DISYN" style="height: 40px; "></a>
+            <nav class="hidden md:block">
+
+                <a href="{% url 'entity_list' %}" class="mx-2 text-gray-600 hover:text-yellow-600">Explore</a>
+                <a href="{% url 'apply' %}" class="mx-2 text-gray-600 hover:text-yellow-600">Apply for Listing</a>
+                {% if user.is_superuser %}
+                    <a href="{% url 'analytics_dashboard' %}" class="mx-2 text-gray-600 hover:text-yellow-600">Analytics</a>
+                    <a href="{% url 'visitor_applications_list' %}" class="mx-2 text-gray-600 hover:yellow-green-600">Visitor Applications</a>
+                    <a href="{% url 'application_list' %}" class="mx-2 text-gray-600 hover:text-yellow-600">Enterprise Applications</a>
+                {% endif %}
+            </nav>
+            <button id="mobileMenuToggle" class="md:hidden">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
-    </nav>
-    <main class="container mx-auto mt-4 p-4">
+    </header>
+    
+    <div id="mobileMenu" class="hidden md:hidden bg-white shadow-md">
+
+        <a href="{% url 'entity_list' %}" class="block py-2 px-4 text-gray-600 hover:bg-yellow-600 hover:text-white">Explore</a>
+        <a href="{% url 'apply' %}" class="block py-2 px-4 text-gray-600 hover:bg-yellow-600 hover:text-white">Apply for Listing</a>
+        {% if user.is_superuser %}
+            <a href="{% url 'analytics_dashboard' %}" class="block py-2 px-4 text-gray-600 hover:bg-yellow-600 hover:text-white">Analytics</a>
+            <a href="{% url 'visitor_applications_list' %}" class="block py-2 px-4 text-gray-600 hover:bg-yellow-600 hover:text-white">Visitor Applications</a>
+            <a href="{% url 'application_list' %}" class="block py-2 px-4 text-gray-600 hover:bg-yellow-600 hover:text-white">Enterprise Applications</a>
+        {% endif %}
+    </div>
+
+    <div class="hidden fixed bottom-4 right-4 z-50">
+        <button id="darkModeToggle" class="bg-gray-800 text-white p-2 rounded-full shadow-lg hover:bg-gray-700 transition duration-300">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <div class="fixed bottom-20 right-4 z-50">
+        <a href="#" id="scrollToTop" class="bg-green-500 text-white p-2 rounded-full shadow-lg hover:bg-green-600 transition duration-300 hidden">
+            <i class="fas fa-arrow-up"></i>
+        </a>
+    </div>
+
+
+    <main class=" mx-auto mb-40 p-4 bg-white">
         {% block content %}
         {% endblock %}
     </main>
-    <footer class="bg-gray-200 p-4 mt-8">
-        <div class="container mx-auto text-center">
-            <p>&copy; 2024 Disyn. All rights reserved.</p>
+
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-wrap justify-between">
+                <div class="w-full md:w-1/4 mb-6 md:mb-0">
+                    <h3 class="text-2xl font-bold mb-4">D<span class="text-yellow-400">ISY</span>N</h3>
+                    <p>Connecting Cameroon's businesses for a brighter future.</p>
+                </div>
+                <div class="w-full md:w-1/4 mb-6 md:mb-0">
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul>
+                        <li><a href="#" class="hover:text-green-500">Home</a></li>
+                        <li><a href="#features" class="hover:text-green-500">Features</a></li>
+                        <li><a href="#testimonials" class="hover:text-green-500">Testimonials</a></li>
+                        <li><a href="#" class="hover:text-green-500">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="w-full md:w-1/4 mb-6 md:mb-0">
+                    <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
+                    <p>Email: info@disyn.com</p>
+                    <p>Phone: +237 123 456 789</p>
+                    <p>Address: Douala, Cameroon</p>
+                </div>
+                <div class="w-full md:w-1/4">
+                    <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-2xl hover:text-green-500"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-2xl hover:text-green-500"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-2xl hover:text-green-500"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-2xl hover:text-green-500"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 text-center">
+                <p>&copy; 2023 DISYN. All rights reserved.</p>
+            </div>
         </div>
     </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+        });
+
+        // Scroll to top
+        const scrollToTopButton = document.getElementById('scrollToTop');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollToTopButton.classList.remove('hidden');
+            } else {
+                scrollToTopButton.classList.add('hidden');
+            }
+        });
+        scrollToTopButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+
+
+
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            console.log("toggling")
+        });
+
+
+    </script>
 </body>
 </html>
